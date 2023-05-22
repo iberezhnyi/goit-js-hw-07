@@ -1,79 +1,53 @@
 import { galleryItems } from "./gallery-items.js";
 
-// Change code below this line
-
-const galleryEl = document.querySelector(".gallery");
-const galleryCardsMarkup = createGalleryCardsMarkup(galleryItems);
-
-const getImage = (e) => {
-  const large = e.target.dataset.source;
-  const desc = e.target.alt;
-  return { large: large, desc: desc };
-};
-
-galleryEl.addEventListener("click", onPictureClick);
-
-galleryEl.innerHTML = galleryCardsMarkup;
-
-function createGalleryCardsMarkup(galleryItemsArray) {
-  return galleryItemsArray
+const galleryRef = document.querySelector(".gallery");
+const markup = (arr) =>
+  arr
     .map(
-      ({ preview, original, description }) =>
-        `<div class="gallery__item">
-            <a class="gallery__link" href="${original}">
-                <img
-                class="gallery__image"
-                src="${preview}"
-                data-source="${original}"
-                alt="${description}"
-                />
-            </a>
-        </div>`
+      ({ preview, original, description }) => `
+  <li li class="gallery__item">
+    <a class="gallery__link" href="${original}">
+      <img
+        class="gallery__image"
+        src="${preview}"
+        data-source="${original}"
+        alt="${description}"
+        width="380"
+      />
+    </a>
+  </li>
+  `
     )
     .join("");
-}
 
-function onPictureClick(e) {
-  const image = getImage(e);
+let instance;
 
-  if (!e.target.classList.contains("gallery__image")) return;
+galleryRef.innerHTML = markup(galleryItems);
+galleryRef.addEventListener("click", onClick);
 
-  e.preventDefault();
+function onClick(evt) {
+  evt.preventDefault();
 
-  const modalFullImage = basicLightbox.create(
-    `<img src="${image.large}" alt="${image.desc}">`
-  );
-  modalFullImage.show();
+  const isImg = evt.target.classList.contains("gallery__image");
 
-  keyboardCloseModal(modalFullImage);
-}
-
-function keyboardCloseModal(modalImg) {
-  const onEscKey = (e) => {
-    if (e.code === "Escape") {
-      modalImg.close();
-      window.removeEventListener("keydown", onEscKey);
-      // console.log(e);
-    }
+  if (!isImg) {
     return;
-  };
-  window.addEventListener("keydown", onEscKey);
+  }
+
+  instance = basicLightbox.create(`
+      <img src="${evt.target.dataset.source}" alt="${evt.target.alt}" width="800">
+  `);
+
+  instance.show();
+
+  window.addEventListener("keydown", onEsc);
 }
 
-// function keyboardCloseModal(modalImg) {
-//   const onEscKey = (e) => {
-//     if (e.code === "Escape") {
-//       modalImg.close();
-//       // window.removeEventListener("keydown", onEscKey);
-//       removeListenerIfNotVisible(modalImg, onEscKey);
-//       console.log(e);
-//     } else {
-//       return;
-//     }
-//   };
-//   window.addEventListener("keydown", onEscKey);
-// }
+function onEsc(evt) {
+  if (evt.code !== "Escape") {
+    return;
+  }
 
-// function removeListenerIfNotVisible(modalImg, onEscKey) {
-//   if (!modalImg.visible()) window.removeEventListener("keydown", onEscKey);
-// }
+  instance.close();
+  window.removeEventListener("keydown", onEsc);
+}
