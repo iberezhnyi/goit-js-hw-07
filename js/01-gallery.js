@@ -23,6 +23,7 @@ const markup = (arr) =>
 let instance;
 
 galleryRef.innerHTML = markup(galleryItems);
+
 galleryRef.addEventListener("click", onClick);
 
 function onClick(evt) {
